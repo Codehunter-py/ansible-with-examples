@@ -1,0 +1,29 @@
+---
+- name: Install Apache
+  hosts: all  
+  become: yes
+
+  handlers:
+    - name: restart network manager
+      service: name=NetworkManager state=restarted
+
+  tasks: 
+    - name: The ping result indicates either a DNS problem
+      ansible.builtin.blockinfile:
+        path: /etc/sysconfig/network-scripts/ifcfg-enp0s8
+        block: |
+          DNS1=10.0.2.2 
+          DNS2=8.8.8.8
+      notify: restart network manager
+
+    - name: Install httpd service
+      yum:
+        name:
+          - httpd
+          - httpd-devel
+
+    - name: Make sure Apache is started now
+      service:
+         name: httpd
+         state: started
+         enabled: yes
