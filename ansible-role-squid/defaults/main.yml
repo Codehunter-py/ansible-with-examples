@@ -1,0 +1,9 @@
+---
+# defaults file for ansible_role_squid
+
+# Adapt variables - removed due to security reason 
+
+squid_http_port: 3128
+cert_path: "@comment"
+key_path: "@comment"
+fqdmn: "@comment"

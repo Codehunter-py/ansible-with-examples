@@ -1,0 +1,4 @@
+---
+# vars file for ansible_role_squid
+packages:
+  - squid

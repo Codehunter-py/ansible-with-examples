@@ -1,0 +1,22 @@
+---
+# tasks file for ansible_role_squid
+
+- name: Install Squid Package on CentOS
+  ansible.builtin.yum:
+    name: "{{ packages }}"
+
+- name: Start Squid and set up an automatic start at boot
+  ansible.builtin.systemd:
+    name: squid
+    state: started
+    enabled: true
+
+- name:  Template a file to /etc/squid/squid.conf
+  ansible.builtin.template:
+    src: squid.conf.j2
+    dest: /etc/squid/squid.conf
+    owner: root
+    group: squid
+    mode: '0640'
+  notify:
+  - Restart squid

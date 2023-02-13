@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include cloudops_2.ansible_role_squid"
+      include_role:
+        name: "cloudops_2.ansible_role_squid"

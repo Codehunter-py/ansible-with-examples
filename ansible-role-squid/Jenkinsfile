@@ -1,0 +1,43 @@
+pipeline {
+
+  pipeline {
+  agent {
+    docker {
+      image 'quay.io/ansible/creator-ee'
+      args '-v /var/run/docker.sock:/var/run/docker.sock'
+      label 'docker'
+    }
+  }
+
+  stages {
+
+    stage ('Setup Python virtual environment') {
+      steps {
+        sh '''
+          python3 -m pip install virtualenv
+          virtualenv virtenv
+          source virtenv/bin/activate
+          python3 -m pip install --upgrade ansible molecule docker
+        '''
+      }
+    }
+
+    stage ('Display versions') {
+      steps {
+        sh '''
+          docker -v
+          python -V
+          ansible --version
+          molecule --version
+        '''
+      }
+    }
+
+    stage ('Molecule test') {
+      steps {
+        sh 'sudo molecule test --all'
+      }
+    }
+
+  } // close stages
+}   // close pipeline
