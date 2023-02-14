@@ -1,0 +1,39 @@
+---
+
+- name: Install Apache on CentOS
+  hosts: app
+  become: true
+
+  vars:
+    apache_package: httpd
+    apache_service: hhtpd 
+    apache_config_dir: /etc/httpd/conf.d
+
+  handlers:
+    - name: restart Apache
+      ansible.builtin.service:
+        name: "{{ apache_service }}"
+        state: restarted
+
+  tasks:
+    - name: Download a file
+      ansible.builtin.get_url:
+        url: http://ipv4.download.thinkbroadband.com/20MB.zip
+        dest: /tmp
+
+    - name: Ensure Apache is Install
+      ansible.builtin.yum:
+        name: "{{ apache_package }}"
+        state: present
+
+    - name: Copy test config file
+      ansible.builtin.copy:
+        src: files/test.conf
+        dest: "{{ apache_config_dir }}/test.conf"
+        notify: restart Apache
+ 
+    - name: Ensure Apache is running and starts at boot 
+      ansible.builtin.service:
+        name: "{{ apache_service }}"
+        state: started
+        enabled: true
