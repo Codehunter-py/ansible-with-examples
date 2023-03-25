@@ -1,0 +1,11 @@
+---
+- name: using lists
+  hosts: all
+  tasks: 
+  - name: install package
+    yum:
+      name:
+      - nmap
+      - httpd
+      - vsftpd
+      state: latest
