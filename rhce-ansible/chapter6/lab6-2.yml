@@ -20,11 +20,11 @@
       state: started
       enabled: yes
     loop:
-    - {{ ansible_facts['ansible_local']['custom2']['services']['web_service'] }}
-    - {{ ansible_facts['ansible_local']['custom2']['services']['smb_service'] }}
-    - {{ ansible_facts['ansible_local']['custom2']['services']['ftp_service'] }}
-    - {{ ansible_facts['ansible_local']['custom2']['services']['db_service'] }}
-    - {{ ansible_facts['ansible_local']['custom2']['services']['firewall_service'] }}
+    - "{{ ansible_facts['ansible_local']['custom2']['services']['web_service'] }}"
+    - "{{ ansible_facts['ansible_local']['custom2']['services']['ftp_service'] }}"
+    - "{{ ansible_facts['ansible_local']['custom2']['services']['firewall_service'] }}"
+    - "{{ ansible_facts['ansible_local']['custom2']['services']['db_service'] }}"
+    - "{{ ansible_facts['ansible_local']['custom2']['services']['firewall_service'] }}"
   - name: enable firewall service
     service:
       name: "{{ ansible_facts['ansible_local']['custom2']['services']['firewall_service'] }}"
