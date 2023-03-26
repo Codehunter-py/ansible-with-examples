@@ -1,0 +1,46 @@
+---
+- name: Set up environment
+  hosts: all
+  vars:
+    web_root: /var/www/html
+    ftp_root: /var/ftp
+  tasks:
+  - name: Install packages
+    yum:
+      name:
+        - "{{ ansible_facts['ansible_local']['custom1']['packages']['smb_package'] }}"
+        - "{{ ansible_facts['ansible_local']['custom1']['packages']['ftp_package'] }}"
+        - "{{ ansible_facts['ansible_local']['custom1']['packages']['db_package'] }}"
+        - "{{ ansible_facts['ansible_local']['custom1']['packages']['web_package'] }}"
+        - "{{ ansible_facts['ansible_local']['custom1']['packages']['firewall_package'] }}"
+      state: latest
+  - name: enable web service
+    service:
+      name: "{{ ansible_facts['ansible_local']['custom2']['services']['web_service'] }}"
+      state: started
+      enabled: yes
+  - name: enable firewall service
+    service:
+      name: "{{ ansible_facts['ansible_local']['custom2']['services']['firewall_service'] }}"
+      state: started
+      enabled: yes
+  - name: enable firewall http
+    firewalld:
+      service: http
+      permanent: true
+      state: enabled
+      immediate: yes
+  - name: enable firewall ftp
+    firewalld:
+      service: ftp
+      permanent: true
+      state: enabled
+      immediate: yes
+  - name: copy content to index.html
+    copy:
+      content: "Welcome to Ansible Web Server."
+      dest: "{{ web_root }}/index.html"
+  - name: restart httpd
+    service:
+      name: "{{ ansible_facts['ansible_local']['custom2']['services']['web_service'] }}"
+      state: restarted

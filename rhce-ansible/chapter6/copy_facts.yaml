@@ -1,0 +1,21 @@
+---
+- name: copy facts
+  hosts: all
+  vars:
+    remote_dir: /etc/ansible/facts.d
+    fact_file1: custom1.fact
+    fact_file2: custom2.fact
+  tasks:
+  - name: create remote dir
+    file:
+      state: directory
+      recurse: yes
+      path: "{{ remote_dir }}"
+  - name: copy custom_fact1
+    copy:
+      src: "{{ fact_file1 }}"
+      dest: "{{ remote_dir }}"
+  - name: copy custom_fact2
+    copy:
+      src: "{{ fact_file2 }}"
+      dest: "{{ remote_dir }}"

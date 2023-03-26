@@ -1,2 +1,3 @@
 **/templates/*.docker
 **/.vagrant
+**/vault-pass
