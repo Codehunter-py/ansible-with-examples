@@ -10,7 +10,30 @@ Vagrant.configure("2") do |config|
   
   config.ssh.insert_key = false
   
-  config.vm.synced_folder ".", "/vagrant", disabled: true 
+  config.vm.synced_folder ".", "/vagrant"
+  
+  $script = <<-'SCRIPT'
+   sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
+   sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.epel.cloud|g' /etc/yum.repos.d/CentOS-Linux-*
+   sudo yum update -y
+  SCRIPT
+  
+   $ansibleInstall = <<-'SCRIPT'
+   yum install -y python3-pip
+   alternatives --set python /usr/bin/python3
+   pip3 install ansible --user.
+   pip3 install wheel --user
+   pip3 install ansible-core --user
+   pip3 install ansible --user.
+   ansible --version
+   echo "192.168.60.5 ansible1.example.com ansible1" | sudo tee -a /etc/hosts
+   echo "192.168.60.6 ansible2.example.com ansible2" | sudo tee -a /etc/hosts
+  SCRIPT
+  
+   $ansibleUser = <<-'SCRIPT'
+   echo "ansible ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers.d/ansible
+  SCRIPT
+  
 
   config.vm.provider :virtualbox do |v|
     v.memory = 1024
@@ -19,18 +42,25 @@ Vagrant.configure("2") do |config|
   
   # App server 1
   config.vm.define "control" do |app|
+    config.vm.provision "shell", inline: $script
+	  config.vm.provision "shell", inline: $ansibleUser
+	  config.vm.provision "shell", inline: $ansibleInstall
     app.vm.hostname = "control.example.com"
     app.vm.network :private_network, ip: "192.168.60.4"
   end
 
   # App server 2
   config.vm.define "ansible1" do |app|
+    config.vm.provision "shell", inline: $script
+	  config.vm.provision "shell", inline: $ansibleUser
     app.vm.hostname = "ansible1.example.com"
     app.vm.network :private_network, ip: "192.168.60.5"
   end
 
   # App server 3
   config.vm.define "ansible2" do |app|
+    config.vm.provision "shell", inline: $script
+	  config.vm.provision "shell", inline: $ansibleUser
     app.vm.hostname = "ansible2.example.com"
     app.vm.network :private_network, ip: "192.168.60.6"
   end
