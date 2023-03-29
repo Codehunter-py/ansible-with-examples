@@ -1,0 +1,23 @@
+---
+- name: Install and start services
+  hosts: all
+  vars:
+    services:
+    - vsftpd
+    - httpd
+    - smb
+  tasks:
+  - name: install packages
+    yum:
+      name:
+      - vsftpd
+      - httpd
+      - tmux
+      - samba
+      state: present
+  - name: start the services
+    service:
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+    loop: "{{ services }}"

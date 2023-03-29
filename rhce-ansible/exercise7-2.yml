@@ -1,0 +1,15 @@
+---
+- name: Conditional install
+  hosts: ansible1
+  tasks:
+  - name: Install apache on Red Hat family
+    yum:
+      name: httpd
+      state: latest
+    when: ansible_facts['os_family'] == "RedHat"
+
+  - name: Install apache on Ubuntu and family
+    yum:
+      name: apache2
+      state: latest
+    when: ansible_facts['os_family'] == "Debian"
