@@ -1,0 +1,15 @@
+---
+- name: test if variable in another variables list
+  hosts: all
+  vars_prompt:
+    - name: my_answer
+      prompt: which package to install
+  vars:
+    packages:
+    - httpd
+    - nginx
+  tasks:
+  - name: Do something
+    debug:
+      msg: you are trying to install "{{ my_answer }}"
+    when: my_answer in packages

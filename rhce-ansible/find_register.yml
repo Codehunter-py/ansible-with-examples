@@ -1,0 +1,12 @@
+---
+- name: Find username in /etc/passwd
+  hosts: all
+  vars_prompt:
+    - name: username
+      prompt: who are you looking for?
+  tasks:
+    - shell: cat /etc/passwd
+      register: passwd_contents
+    - debug:
+        msg: passwd contents user "{{ username }}"
+      when: passwd_contents.stdout.find(username) != -1
