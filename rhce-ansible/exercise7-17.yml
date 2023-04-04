@@ -1,0 +1,27 @@
+---
+- name: create file on localhost
+  hosts: localhost
+  tasks:
+    - name: create index.html on localhost
+      copy:
+        content: "Welcome to the webserver"
+        dest: /tmp/index.html
+
+- name: set up a web-server
+  hosts: all
+  tasks:
+    - name: install httpd
+      yum:
+        name: httpd
+        state: present
+    - name: copy index.html
+      copy:
+        src: /tmp/index.html
+        dest: /var/www/html/index.html
+      notify:
+        - restart_web
+  handlers:
+    - name: restart_web
+      service:
+        name: httpd
+        state: restarted
