@@ -1,3 +1,4 @@
 **/templates/*.docker
 **/.vagrant
 **/vault-pass
+**/ansible.cfg
