@@ -1,7 +1,10 @@
 packages:
   - name: httpd
-    state: absent
-  - name: vsftpd
-    state: installed
-  - name: mysql-server
-    state: latest
+    state: present
+  - name: mod_ssl
+    state: present
+firewall:
+  - name: https
+    state: enabled
+  - name: http
+    state: enabled
