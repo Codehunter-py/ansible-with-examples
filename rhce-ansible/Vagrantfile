@@ -33,6 +33,10 @@ Vagrant.configure("2") do |config|
    $ansibleUser = <<-'SCRIPT'
    sudo useradd -m ansible && echo "ansible" | sudo passwd ansible --stdin
    echo "ansible ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers.d/ansible
+   sudo mkdir /home/ansible/.ssh/ && sudo touch /home/ansible/.ssh/authorized_keys
+   sudo chown ansible:ansible -R /home/ansible/.ssh/
+   sudo chmod 600 /home/ansible/.ssh/authorized_keys
+   sudo chmod 700 /home/ansible/.ssh
   SCRIPT
   
 
