@@ -1,0 +1,15 @@
+---
+- name: modifying file
+  hosts: all
+  tasks:
+  - name: ensure /tmp/hosts exists
+    file:
+      path: /tmp/hosts
+      state: touch
+  - name: add some lines to /tmp/hosts
+    blockinfile:
+      path: /tmp/hosts
+      block: |
+        192.168.60.5 ansible1.example.com ansible1
+        192.168.60.6 ansible2.example.com ansible2
+      state: present
