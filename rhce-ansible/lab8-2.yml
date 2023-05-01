@@ -1,0 +1,60 @@
+---
+- name: Install vsftpd service
+  hosts: ansible2
+  tasks:
+  - name: Yum install vsftpd
+    yum:
+      name: 
+      - vsftpd
+      - policycoreutils-python-utils
+      - python3-libsemanage
+      state: latest
+  - name: Enable on boot
+    service:
+      name: vsftpd
+      state: started
+      enabled: yes
+  - name: Open firewall
+    firewalld:
+      service: ftp
+      permanent: true
+      state: enabled
+  - name: 21/tcp for vsftp
+    firewalld:
+      port: 21/tcp
+      permanent: true
+      state: enabled
+  - name: generate template
+    lineinfile:
+      path: /etc/vsftpd/vsftpd.conf
+      regexp: "^anonymous_enable"
+      line: "anonymous_enable: yes"
+    lineinfile:
+      path: /etc/vsftpd/vsftpd.conf
+      regexp: "^local_enable"
+      line: "local_enable: yes"
+    lineinfile:
+      path: /etc/vsftpd/vsftpd.conf
+      regexp: "^write_enable"
+      line: "write_enable yes"
+    lineinfile:
+      path: /etc/vsftpd/vsftpd.conf
+      regexp: "^anon_upload_enable"
+      line: "anon_upload_enable: yes"
+  - name: create ftp dir
+    file:
+      path: /var/ftp/pub
+      state: directory
+      mode: '0777'
+  - name: Enable boolean
+    seboolean:
+      name: ftpd_anon_write
+      state: yes
+      persistent: yes
+  - name: Set SELinux
+    sefcontext:
+      target: '/var/ftp/pub(/.*)?'
+      setype: public_content_rw_t
+      state: present
+  - name: Apply New SElinux file context to fs
+    command: restorecon -irv /var/ftp/pub
