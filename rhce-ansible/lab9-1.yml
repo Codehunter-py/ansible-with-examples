@@ -1,0 +1,14 @@
+---
+- name: install nginx using Galaxy role
+  hosts: ansible2
+  roles:
+  - geerlingguy.nginx
+  - geerlingguy.postgresql
+  pre_tasks:
+    - name: Ensure that httpd and mysql packages are absent
+      yum:
+        name: 
+          - httpd
+          - mysql
+        state: absent
+      ignore_errors: yes
