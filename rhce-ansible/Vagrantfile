@@ -16,6 +16,7 @@ Vagrant.configure("2") do |config|
    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.epel.cloud|g' /etc/yum.repos.d/CentOS-Linux-*
    sudo sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
+   sudo sed -i 's/PasswordAuthentication no/PPasswordAuthentication yes/g' /etc/ssh/sshd_config
    sudo yum update -y
    sudo systemctl restart sshd
   SCRIPT
