@@ -16,21 +16,22 @@ Vagrant.configure("2") do |config|
    sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.epel.cloud|g' /etc/yum.repos.d/CentOS-Linux-*
    sudo sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
-   sudo sed -i 's/PasswordAuthentication no/PPasswordAuthentication yes/g' /etc/ssh/sshd_config
+   sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
    sudo yum update -y
    sudo systemctl restart sshd
   SCRIPT
   
    $ansibleInstall = <<-'SCRIPT'
-   yum install -y python3-pip
+   sudo yum install -y python3-pip
    alternatives --set python /usr/bin/python3
+   sudo pip3 install setuptools_rust
    pip3 install ansible --user.
    pip3 install wheel --user
    pip3 install ansible-core --user
    pip3 install ansible --user.
    ansible --version
-   echo "192.168.60.5 ansible1.example.com ansible1" | sudo tee -a /etc/hosts
-   echo "192.168.60.6 ansible2.example.com ansible2" | sudo tee -a /etc/hosts
+   echo "192.168.0.118 ansible1.example.com ansible1" | sudo tee -a /etc/hosts
+   echo "192.168.0.119 ansible2.example.com ansible2" | sudo tee -a /etc/hosts
   SCRIPT
   
    $ansibleUser = <<-'SCRIPT'
@@ -54,7 +55,7 @@ Vagrant.configure("2") do |config|
 	#   config.vm.provision "shell", inline: $ansibleUser
 	#   config.vm.provision "shell", inline: $ansibleInstall
   #   app.vm.hostname = "control.example.com"
-  #   app.vm.network :private_network, ip: "192.168.60.4"
+  #   app.vm.network :public_network, ip: "192.168.0.122"
   # end
 
   # App server 2
@@ -62,7 +63,8 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", inline: $script
 	  config.vm.provision "shell", inline: $ansibleUser
     app.vm.hostname = "ansible1.example.com"
-    app.vm.network :private_network, ip: "192.168.60.5"
+    app.vm.network :public_network, ip: "192.168.0.118"
+    
   end
 
   # App server 3
@@ -70,7 +72,7 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", inline: $script
 	  config.vm.provision "shell", inline: $ansibleUser
     app.vm.hostname = "ansible2.example.com"
-    app.vm.network :private_network, ip: "192.168.60.6"
+    app.vm.network :public_network, ip: "192.168.0.119"
   end
 
 end
