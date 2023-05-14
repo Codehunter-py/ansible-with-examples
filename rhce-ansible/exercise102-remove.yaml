@@ -1,0 +1,19 @@
+---
+- name: install enable and run apache webserver
+  hosts: all
+  tasks:
+  - name: open firewall
+    firewalld:
+      service: http
+      permanent: no
+      state: disabled
+  - name: run and enable
+    service:
+      name: httpd
+      state: stopped
+      enabled: false
+    ignore_errors: true
+  - name: install
+    yum:
+      name: httpd
+      state: removed
