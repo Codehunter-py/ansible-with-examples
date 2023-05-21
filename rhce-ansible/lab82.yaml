@@ -3,58 +3,42 @@
   hosts: all
   serial: 2
   tasks:
-  - name: get basic vsftpd operational
-    import_tasks: tasks/service.yml
+  - name: install vsftpd
     vars:
       package: vsftpd
       service: vsftpd
+    import_tasks: tasks/service.yml
   - name: open port in firewall
-    import_tasks: tasks/firewall.yml
     vars:
       firewall_package: firewalld
       firewall_service: firewalld
       firewall_rules:
       - ftp
+    import_tasks: tasks/firewall.yml
 
 - name: configure VSFTPD using a template
   hosts: all
   serial: 2
-  vars:
-    anonymous_enable: yes
-    local_enable: yes
-    write_enable: yes
-    anon_upload_enable: yes
   tasks:
-  - name: use template to copy FTP config
-    template:
-      src: lab82.j2
-      dest: /etc/vsftpd/vsftpd.conf
+  - name: import conf task
+    vars:
+      anonymous_enable: yes
+      local_enable: yes
+      write_enable: yes
+      anon_upload_enable: yes
+    import_tasks: tasks/copy-ftp-conf.yml
 
 - name: configure vsftpd permissions and selinux
   hosts: all
   serial: 2
   tasks:
-  - name: install required selinux tools
-    yum:
-      name: policycoreutils-python-utils
-      state: present
-  - name: set permissions
-    file:
-      path: /var/ftp/pub
-      mode: '0777'
-  - name: set selinux boolean
-    seboolean:
-      name: ftpd_anon_write
-      state: yes
-      persistent: yes
-  - name: manage selinux settings
-    sefcontext:
-      target: /var/ftp/pub
-      setype: public_content_rw_t
-      state: present
-    notify:
-      - run restorecon
+  - name: import selinux tasks
+    vars:
+      file_path: /var/ftp/pub
+      file_mode: '0777'
+      boolean_name: ftpd_anon_write
+      context_type: public_content_rw_t
+    import_tasks: tasks/selinux.yml
   handlers:
   - name: run restorecon
-    command: restorecon -vR /var/ftp/pub
-    
+    command: restorecon -vR "{{ file_path }}"
