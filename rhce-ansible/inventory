@@ -2,9 +2,9 @@
 ansible1
 ansible2
 
-[worker-group2]
-ansible3
-ansible4
+#[worker-group2]
+#ansible3
+#ansible4
 
 # [web]
 # web1
