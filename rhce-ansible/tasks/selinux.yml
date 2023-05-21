@@ -1,0 +1,25 @@
+---
+- name: install required selinux tools
+  yum:
+    name: policycoreutils-python-utils
+    state: present
+- name: set permissions
+  file:
+    path: {{ file_path }}
+    mode: {{ file_mode }}
+- name: set selinux boolean
+  seboolean:
+    name: {{ boolean_name }}
+    state: yes
+    persistent: yes
+- name: manage selinux settings
+  sefcontext:
+    target: {{ file_path }}
+    setype: {{ context_type }}
+    state: present
+  notify:
+    - run restorecon
+handlers:
+- name: run restorecon
+  command: restorecon -vR {{ file_path }}
+    
