@@ -15,10 +15,3 @@
     debug:
       var: ansible_facts.packages[my_package]
     when: my_package in ansible_facts.packages
-  - name: connect to example repo
-    yum_repository:
-      name: example repo
-      description: RHCE example repo
-      file: examplerepo
-      baseurl: ftp://ftp.redhat.com/pub/redhat/linux/enterprise/$releasever/en/os/SRPMS/
-      gpgcheck: no
