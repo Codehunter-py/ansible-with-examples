@@ -1,0 +1,30 @@
+---
+- name:
+  hosts: ansible2
+  vars:
+    my_package: nmap
+  tasks:
+  - name: system update
+    yum:
+      name: '*'
+      state: latest
+  - name: install or update a package group
+    yum:
+      name: '@Virtualization Host'
+      state: latest
+  - name: install or update an AppStream module
+    yum:
+      name: '@php:7.3/devel'
+      state: present
+  - name:
+    yum:
+      name: "{{ my_package }}"
+      state: present
+  - name: update package facts
+    package_facts:
+      manager: auto
+  - name: show package facts for {{ my_package }}
+    debug:
+      var: ansible_facts.packages[my_package]
+    when: my_package in ansible_facts.packages
+
