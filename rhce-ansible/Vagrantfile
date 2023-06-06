@@ -92,10 +92,4 @@ Vagrant.configure("2") do |config|
     SHELL
   end
 
-  # App server 4
-  config.vm.define "ansible4" do |app|
-    app.vm.box = "generic/rhel8"
-    app.vm.hostname = "ansible4.example.com"
-    app.vm.network :public_network, ip: "192.168.0.121"
-  end
 end
