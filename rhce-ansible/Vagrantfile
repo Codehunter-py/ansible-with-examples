@@ -92,4 +92,14 @@ Vagrant.configure("2") do |config|
     SHELL
   end
 
+<<<<<<< HEAD
+=======
+  # App server 5
+  config.vm.define "ansible5" do |app|
+    app.vm.box = "generic/rhel8"
+    app.vm.hostname = "ansible5.example.com"
+    app.vm.network :private_network, ip: "192.168.0.123"
+  end
+
+>>>>>>> 3bf06dc (updated)
 end
