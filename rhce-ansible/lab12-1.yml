@@ -1,6 +1,10 @@
 ---
 - name: Configure repository server
+<<<<<<< HEAD
   hosts: ansible2
+=======
+  hosts: ansible1
+>>>>>>> 5f16ae0 (lab12-1)
   tasks:
   - name: install ftp server
     yum:
@@ -9,6 +13,14 @@
       - createrepo_c
       - policycoreutils-python-utils
       state: present
+<<<<<<< HEAD
+=======
+  - name: Allow anon write
+    lineinfile:
+      path: /etc/vsftpd/vsftpd.conf
+      regexp: '^anonymous_enable=NO'
+      line: 'anonymous_enable=YES'
+>>>>>>> 5f16ae0 (lab12-1)
   - name: start services
     service: 
       name: "{{ item }}"
@@ -24,7 +36,11 @@
       permanent: yes
       immediate: yes
 - name: Setup a repo
+<<<<<<< HEAD
   hosts: ansible2
+=======
+  hosts: ansible1
+>>>>>>> 5f16ae0 (lab12-1)
   tasks:
   - name: makedir
     file:
@@ -64,12 +80,17 @@
       state: restarted
 
 - name: configure repository
+<<<<<<< HEAD
   hosts: ansible3
+=======
+  hosts: ansible2
+>>>>>>> 5f16ae0 (lab12-1)
   vars:
     my_package: nginx
   tasks:
   - name: Connect to example repo
     yum_repository:
+<<<<<<< HEAD
       name: lab12-1
       description: RHCE8 exercise repo
       file: lab12-1
@@ -79,11 +100,25 @@
     lineinfile:
       path: /etc/hosts
       line: 192.168.0.118  ansible2.example.com  ansible2
+=======
+      name: lab12-2
+      description: RHCE8 exercise repo
+      file: lab12-2
+      baseurl: http://ansible1.example.com/repo/
+      gpgcheck: no
+>>>>>>> 5f16ae0 (lab12-1)
   - name: download Nginx package from repo server
     yum:
       name: nginx
       state: present
   - name:
+<<<<<<< HEAD
+=======
+    lineinfile:
+      path: /etc/hosts
+      line: 192.168.0.118  ansible1.example.com  ansible1
+  - name:
+>>>>>>> 5f16ae0 (lab12-1)
     yum:
       name: "{{ my_package }}"
       state: present
