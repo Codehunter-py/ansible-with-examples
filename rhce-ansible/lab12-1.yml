@@ -1,0 +1,101 @@
+---
+- name: Configure repository server
+  hosts: ansible1
+  tasks:
+  - name: install ftp server
+    yum:
+      name: 
+      - httpd
+      - createrepo_c
+      - policycoreutils-python-utils
+      state: present
+  - name: Allow anon write
+    lineinfile:
+      path: /etc/vsftpd/vsftpd.conf
+      regexp: '^anonymous_enable=NO'
+      line: 'anonymous_enable=YES'
+  - name: start services
+    service: 
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+    loop:
+    - firewalld
+    - httpd
+  - name: Open the firewall
+    firewalld:
+      port: 80/tcp
+      state: enabled
+      permanent: yes
+      immediate: yes
+- name: Setup a repo
+  hosts: ansible1
+  tasks:
+  - name: makedir
+    file:
+      path: /repo
+      state: directory
+  - name: download nginx packages
+    yum:
+      name: '@nginx'
+      download_only: yes
+      download_dir: /repo
+  - name: use lineinfile to change webserver configuration
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^DocumentRoot "/var/www/html"'
+      line: DocumentRoot "/repo"
+  - name: use lineinfile to change webserver security
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^<Directory "/var/www">'
+      line: '<Directory "/repo">'
+  - name: use sefcontext to set context on new documentroot
+    sefcontext:
+      target: '/repo(/.*)?'
+      setype: httpd_sys_content_t
+      state: present
+  - name: run the restorecon command
+    command: restorecon -Rv /repo
+    changed_when: false
+  - name: createrepo
+    command: createrepo_c /repo
+    notify:
+    - restart_httpd
+  handlers:
+  - name: restart_httpd
+    service:
+      name: httpd
+      state: restarted
+
+- name: configure repository
+  hosts: ansible2
+  vars:
+    my_package: nginx
+  tasks:
+  - name: Connect to example repo
+    yum_repository:
+      name: lab12-2
+      description: RHCE8 exercise repo
+      file: lab12-2
+      baseurl: http://ansible1.example.com/repo/
+      gpgcheck: no
+  - name: download Nginx package from repo server
+    yum:
+      name: nginx
+      state: present
+  - name:
+    lineinfile:
+      path: /etc/hosts
+      line: 192.168.0.118  ansible1.example.com  ansible1
+  - name:
+    yum:
+      name: "{{ my_package }}"
+      state: present
+  - name: update package facts
+    package_facts:
+      manager: auto
+  - name: show package facts
+    debug:
+      var: ansible_facts.packages[my_package]
+    when: my_package in ansible_facts.packages
