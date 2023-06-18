@@ -1,0 +1,16 @@
+---
+- name: demo
+  hosts: localhost
+  vars:
+    file_contents: "{{lookup('file', '/etc/hosts')}}"
+  tasks:
+  - debug:
+      var: file_contents
+- name: authorized_key simple demo
+  hosts: ansible2
+  tasks:
+  - name: copy authorized_key for ansible user
+    authorized_key:
+      user: ansible
+      state: present
+      key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
