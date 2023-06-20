@@ -19,6 +19,21 @@
     loop: "{{ users }}"
   tags: setuplocal
 
+- name: cleanup current directory and delete users
+  hosts: localhost
+  vars_files:
+  - exercise134-vars.yml
+  tasks:
+  - name: delete users
+    user:
+      name: "{{ item.username }}"
+      state: absent
+    loop: "{{ users }}"
+  - name: remove the local user ssh key to temp {{ item.username }} key
+    shell: 'rm -rf {{ item.username }}'
+    loop: "{{ users }}"
+  tags: [ never, debug ]
+
 - name: create users on managed hosts
   hosts: ansible2
   vars_files:
