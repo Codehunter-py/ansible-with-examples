@@ -19,6 +19,7 @@
     loop: "{{ users }}"
   tags: setuplocal
 
+<<<<<<< HEAD
 - name: cleanup current directory and delete users
   hosts: localhost
   vars_files:
@@ -34,6 +35,8 @@
     loop: "{{ users }}"
   tags: [ never, debug ]
 
+=======
+>>>>>>> fdc17d6 (chapter 13 - exercise 134)
 - name: create users on managed hosts
   hosts: ansible2
   vars_files:
