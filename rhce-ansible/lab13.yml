@@ -1,0 +1,24 @@
+---
+- name: Create users
+  hosts: ansible2
+  vars_files:
+  - lab13-vars.yml
+  - lab13-sudo.yml
+  tasks:
+  - name: create groups
+    group:
+      name: "{{ item.groups }}"
+      state: present
+    loop: "{{ users }}"
+  - name: create users
+    user:
+      name: "{{ item.username }}"
+      groups: "{{ item.groups }}"
+      password: $6$myrandomsalt$McEB.xAVUWe0./6XqZ8n/7k9VV/Gxndy9nIMLyQAiPnhyBoToMWbxX2vA4f.Uv9PKnPRaYUUc76AjLWVAX6U10
+    loop: "{{ users }}"
+  - name: allow group member in sudo
+    template:
+      src: lab13.j2
+      dest: /etc/sudoers.d/sudogroups
+      validate: 'visudo -cf %s'
+      mode: 0440
