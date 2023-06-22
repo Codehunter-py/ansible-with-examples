@@ -1,0 +1,24 @@
+---
+- name: run a cron job
+  hosts: ansible2
+  tasks:
+  - name: run a priodic job
+    cron:
+      name: "run echo"
+      user: ansible
+      minute: "54"
+      hour: "23"
+      job: "logger it is echo"
+  - name: remove the job
+    cron:
+      name: "run echo"
+      state: absent
+    tags: [ never, debug ]
+  - name: run at task
+    at:
+      command: "date > /tmp/datefile_by_at"
+      units: minutes
+      count: 1
+      unique: yes
+      state: present
+    tags: attask

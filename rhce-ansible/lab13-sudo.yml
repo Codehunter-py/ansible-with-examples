@@ -1,0 +1,5 @@
+sudo_groups:
+  - name: profs
+    sudo: true
+  - name: students
+    sudo: false

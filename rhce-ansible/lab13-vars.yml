@@ -1,0 +1,13 @@
+users:
+- username: kim
+  groups: profs
+  sudo: true
+- username: kelly
+  groups: profs
+  sudo: true
+- username: christina
+  groups: students
+  sudo: false
+- username: bill
+  groups: students
+  sudo: false
