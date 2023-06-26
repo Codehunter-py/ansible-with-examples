@@ -1,0 +1,22 @@
+---
+- name: set default boot target
+  hosts: ansible2
+  tasks:
+  - name: set target to multi-user
+    file:
+      src: /usr/lib/systemd/system/multi-user.target
+      dest: /etc/systemd/system/default.target
+      state: link
+
+# exercise 14-7
+
+- name: reboot all hosts
+  hosts: all
+  gather_facts: no
+  tasks: 
+  - name: reboot hosts
+    reboot:
+      msg: reboot initiated by Ansible
+      test_command: whoami
+  - debug:
+      msg: successfully rebooted
