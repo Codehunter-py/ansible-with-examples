@@ -1,0 +1,28 @@
+---
+- name:
+  hosts: ansible2
+  tasks:
+  - name: Create a cron job
+    cron:
+      name: restart managed nodes
+      state: present
+      weekday: "1-5"
+      minute: "0"
+      hour: "2"
+      user: root
+      job: "reboot"
+  - name: After reboot message
+    cron:
+      name: after reboot
+      state: present
+      special_time: reboot
+      job: "logger CRON initiated reboot just completed"
+  - name: Set default systemd target
+    file:
+      src: /usr/lib/systemd/system/multi-user.target
+      dest: /etc/systemd/system/default.target
+      state: link
+  - name: Gather service facts
+    service_facts:
+  - debug:
+      var: ansible_facts.services['crond.service']
