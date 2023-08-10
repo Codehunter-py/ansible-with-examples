@@ -69,7 +69,7 @@
       state: restarted
 
 - name: configure repository
-  hosts: ansible2
+  hosts: ansible3
   vars:
     my_package: nginx
   tasks:
@@ -80,6 +80,10 @@
       file: lab12-1
       baseurl: http://ansible2.example.com/
       gpgcheck: no
+  - name:
+    lineinfile:
+      path: /etc/hosts
+      line: 192.168.0.118  ansible2.example.com  ansible2
   - name: download Nginx package from repo server
     yum:
       name: nginx

@@ -51,7 +51,6 @@
       content: '%admins ALL=(ALL:ALL) NOPASSWD:ALL'
       dest: /etc/sudoers.d/admins
   tags: setupremote
----
 - name: create users on localhost
   hosts: localhost
   vars_files:
@@ -71,11 +70,6 @@
     command: ls -l {{ item.username }}/
     loop: "{{ users }}"
   tags: setuplocal
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 8924a4b (chapter 13 - exercise 134 update)
 - name: cleanup current directory and delete users
   hosts: localhost
   vars_files:
@@ -90,12 +84,6 @@
     shell: 'rm -rf {{ item.username }}'
     loop: "{{ users }}"
   tags: [ never, debug ]
-
-<<<<<<< HEAD
-=======
->>>>>>> fdc17d6 (chapter 13 - exercise 134)
-=======
->>>>>>> 8924a4b (chapter 13 - exercise 134 update)
 - name: create users on managed hosts
   hosts: ansible2
   vars_files:
