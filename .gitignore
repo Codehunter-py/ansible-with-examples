@@ -7,3 +7,4 @@
 **/shutdown_everything.sh
 **/inventory
 **/*.swp
+**/*.log
