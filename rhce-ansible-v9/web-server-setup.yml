@@ -1,0 +1,31 @@
+---
+- name: Ensure web server is installed
+  hosts: ansible2
+  tasks:
+  - name: Install required packages
+    yum:
+      name: 
+      - httpd
+      - firewalld
+      state: present
+  - name: Ensure that services are started
+    service:
+      name: httpd
+      enabled: yes
+      state: started
+  - name: Ensure that firewalld is started
+    service:
+      name: firewalld
+      enabled: yes
+      state: started
+  - name: ensure that firewall allows access to webserver
+    firewalld:
+      service: http
+      state: enabled
+      permanent: true
+      immediate: true
+  - name: create a welcome text
+    copy:
+      content: "Welcome to my webserver"
+      dest: "/var/www/html/index.html"
+
