@@ -1,0 +1,19 @@
+---
+- name: copy the fact
+  hosts: ansible1
+  vars:
+    facts_dir: /etc/ansible/facts.d
+  tasks:
+  - name: create ansible fact dir
+    file:
+      name: "{{ facts_dir }}"
+      state: directory
+  - name: copy localfact file
+    copy:
+      content: |
+        [facts]
+        type=production
+      dest: "{{ facts_dir }}/local.fact"
+  - name: debug fact
+    debug:
+      var: ansible_facts.ansible_local.local.facts.type
