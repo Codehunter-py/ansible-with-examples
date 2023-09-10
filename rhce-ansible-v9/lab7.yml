@@ -1,0 +1,13 @@
+---
+- name: Lesson lab 7
+  hosts: ansible1
+  tasks:
+  - name: Ensure that second disk is found
+    debug:
+      msg: Second disk is found
+    when: ansible_facts['devices']['sdb'] is defined
+  - name: display
+    debug:
+      msg: you have no second disk
+    when: ansible_facts['devices']['sdb'] is not defined
+
