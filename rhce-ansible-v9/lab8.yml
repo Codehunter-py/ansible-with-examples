@@ -1,0 +1,7 @@
+- name: lab8 
+  hosts: all
+  tasks:
+  - name: set hostname
+    command: hostnamectl set-hostname {{ inventory_hostname }}
+  - name: reboot
+    command: reboot
