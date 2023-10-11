@@ -1,0 +1,6 @@
+---
+- name: Nginx role by geerlingguy
+  hosts: ansible2
+  become: true
+  roles:
+    - role: geerlingguy.nginx
