@@ -1,0 +1,5 @@
+---
+- name: Using roles
+  hosts: ansible2
+  roles:
+    - myrole

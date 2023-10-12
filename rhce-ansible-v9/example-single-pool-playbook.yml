@@ -3,7 +3,7 @@
   hosts: ansible2
   vars:
     timesync_ntp_servers:
-      - hostname: 2.pool.ntp.org
+      - hostname: pool.ntp.org
         pool: true
         iburst: true
   roles:
