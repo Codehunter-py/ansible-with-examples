@@ -1,0 +1,11 @@
+---
+- name: "Check if network interface exist enp0s3 }}"
+  hosts: ansible2
+  gather_facts: true
+  tasks:
+  - name: test with assert
+    assert:
+      that:
+        - ansible_enp0s3 is defined
+      fail_msg: bad luck
+      success_msg: network interface does exist
