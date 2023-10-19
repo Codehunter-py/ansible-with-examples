@@ -1,0 +1,51 @@
+---
+- name: create management test user
+  hosts: ansible2
+  tasks:
+  - name: create test user
+    user:
+      name: test-user
+      state: present
+  - name: ensure that test-user has sudo privilages
+    lineinfile:
+      path: /etc/suoders.d/test-user
+      state: present
+      create: true
+      line: 'test-user ALL=(ALL) NOPASSWD: ALL'
+      validate: /usr/sbin/visudo -cf %s
+
+- name: manage user keys
+  hosts: localhost
+  tasks:
+  - name: create a dir to store file that authorized_keys is going to distribute
+    file:
+      name: ansiblekey
+      state: directory
+  - name: copy the local ansible ssh key to this dir
+    shell: 'cat /home/control/.ssh/id_rsa.pub > ansiblekey/id_rsa.pub'
+    changed_when: false
+
+- name: create another remote user with a key
+  hosts: ansible2
+  tasks:
+  - name: copy the management user auth key to management host
+    authorized_key:
+      user: test-user
+      key: "{{ lookup('file', './ansiblekey/id_rsa.pub') }}"
+  - name: create a remote user with an SSH key pair
+    user:
+      name: anna
+      generate_ssh_key: true
+      ssh_key_bits: 2048
+      ssh_key_file: .ssh/ansible_key_rsa
+
+- name: ensure that users are removed
+  hosts: ansible2
+  tasks:
+  - name: ensure that users are absent
+    user:
+      name:
+      - test-user
+      - anna
+      state: absent
+    tags: never, removeuser
