@@ -1,0 +1,27 @@
+---
+- name: "Lesson 12 Lab: Managing Users"
+  hosts: ansible2
+  vars:
+    users:
+    - name: anna
+      state: absent
+    - name: lisa
+      state: absent
+    - name: ally
+      state: absent
+  vars_prompt:
+    - name: mypassword
+      prompt: What is a password?
+  tasks:
+  - name: Generate the encrypted password
+    debug:
+      msg: "{{ 'mypassword' | password_hash('sha512') }}"
+    register: mypass
+    when: item.state == 'present'
+    loop: "{{ users }}"
+  - name: Ensure that user account is created for users
+    ansible.builtin.user:
+      name: "{{ item.name }}"
+      state: "{{ item.state }}"
+      password: "{{ mypass.msg }}"
+    loop: "{{ users }}"
