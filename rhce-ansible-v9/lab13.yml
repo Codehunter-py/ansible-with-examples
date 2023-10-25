@@ -1,0 +1,22 @@
+---
+- name: "Lesson Lab 13: Managing the Default Target"
+  hosts: ansible1
+  vars:
+    default_target: multi-user.target
+  tasks:
+  - name: Get default state of host
+    command: 
+      cmd: systemctl get-default
+    changed_when: false
+    register: default
+  - name: Set the default boot state of managed host(s)
+    command:
+      cmd: systemctl set-default "{{ default_target }}"
+    when: not default_target in default.stdout
+    notify: reboot_host
+  
+  handlers:
+    - name: reboot_host
+      reboot:
+        reboot_timeout: 360
+        test_command: whoami
