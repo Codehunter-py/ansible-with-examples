@@ -1,0 +1,53 @@
+- name: "Lesson 14 Lab: Manage Storage"
+  hosts: all
+  tasks:
+  - name: Check if a second hard disk is present
+    assert: 
+      that:
+        - ansible_facts['devices']['sdb']['size'] is defined
+      fail_msg: second hard disk not present
+    ignore_errors: yes
+  - name: Continue with second disk installed servers
+    block:
+      - name: Configure the device with one partition including all disk space
+        parted:
+          device: /dev/sdb
+          number: 1
+          flags: [ lvm ]
+          state: present
+          part_end: "100%"
+      - name:  Ensure that lvm group vgfiles is created
+        lvg:
+          vg: vgfiles
+          pvs: /dev/sdb1
+      - name: Gatcher facts after added
+        ansible.builtin.setup:
+      - name: Ensure that lvfiles is created with 5gb space
+        lvol:
+          vg: vgfiles
+          lv: lvfiles
+          size: 5g
+        when: ansible_lvm['vgs']['vgfiles']['size_g'] | int > 5
+      - name: Ensure that lvfiles is created with 3gb space
+        lvol:
+          vg: vgfiles
+          lv: lvfiles
+          size: 3g
+        when: ansible_lvm['vgs']['vgfiles']['size_g'] | int <= 5
+      - name: Format the volume with xfs 
+        filesystem:
+          dev: /dev/vgfiles/lvfiles
+          fstype: xfs
+      - name: Ensure that files directory exists
+        file:
+          path: /files
+          state: directory
+          mode: '0755'
+      - name: Ensure that fs is mounted
+        ansible.posix.mount:
+          path: /files
+          src: /dev/vgfiles/lvfiles
+          state: mounted
+          fstype: xfs
+    when: ansible_facts['devices']['sdb']['size'] is defined
+ 
