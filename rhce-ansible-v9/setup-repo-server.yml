@@ -1,0 +1,54 @@
+---
+- name: Setting up a Repository Server
+  hosts: localhost
+  tasks:
+  - name: Ensure that packages are installed
+    yum:
+      name: 
+      - httpd
+      - firewalld
+      - policycoreutils-python-utils
+      state: present
+  - name: Ensure that firewall allows http service
+    firewalld:
+      service: http
+      permanent: true
+      immediate: true
+      state: enabled
+  - name: Ensure that Apache is enabled on boot
+    service:
+      name: httpd
+      enabled: yes
+      state: started
+  - name: Ensure that content directory exist
+    file:
+      path: /reposerver
+      state: directory
+  - name: Ensure that symbolic link exists at /var/www/html
+    file:
+      path: /var/www/html/repository
+      src: /reposerver
+      state: link
+  - name: Ensure that content is copied from iso file
+    ansible.posix.mount:
+      path: /mnt
+      src: /dev/sr0
+      fstype: iso9660
+      opts: ro,noauto
+      state: present
+    when: ansible_facts['devices']['sr0'] is defined
+    ignore_errors: yes
+  - name: copy the content and list the content
+    shell: sudo cp -Rf /mnt/B* /reposerver | ls -l /reposerver
+    register: content
+    when: ansible_facts['devices']['sr0'] is defined
+    ignore_errors: yes
+    delegate_to: localhost
+  - name: Ensure that selinux configured properly
+    community.general.sefcontext:
+      target: '/reposerver(/.*)?'
+      setype: httpd_sys_content_t
+      state: present
+  - name: Ensure that restorecon run
+    command: restorecon -Rv /reposerver
+    changed_when: false

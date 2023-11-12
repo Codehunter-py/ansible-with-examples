@@ -1,0 +1,11 @@
+---
+- name: Setting up a client
+  hosts: ansible1
+  tasks:
+  - name: Add multiple repositories into the same file
+    ansible.builtin.yum_repository:
+      name: baseos
+      description: baseos YUM repo
+      file: external_repos
+      baseurl: http://control.example.com/reposerver
+      gpgcheck: no
