@@ -1,0 +1,44 @@
+---
+- name: Create users that a member of group profs
+  hosts: ansible1
+  vars_files: 
+    - task7file.yml
+  tasks:
+  - name: Ensure that group exists
+    group:
+      name: profs
+      state: present
+  - name: Ensure that users exist
+    user:
+      name: "{{ item.username }}"
+      groups: "{{ item.grp }}"
+    when: item.grp == "profs"
+    loop: "{{ users }}"
+
+- name: Create users that a member of group students
+  hosts: ansible2
+  vars_files: 
+    - task7file.yml
+  tasks:
+  - name: Ensure that group exists
+    group:
+      name: students
+      state: present
+  - name: Ensure that users exist
+    user:
+      name: "{{ item.username }}"
+      groups: "{{ item.grp }}"
+    when: item.grp == "students"
+    loop: "{{ users }}"
+
+- name: Create users that a member of group students
+  hosts: all
+  ignore_errors: yes
+  vars_files: 
+    - task7file.yml
+  tasks:
+  - name: Set password
+    shell: echo {{ item.pwd }} | passwd {{ item.username }} --stdin
+    loop: "{{ users }}"
+
+
