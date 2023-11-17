@@ -1,0 +1,32 @@
+---
+- name: Clear Swap Memory
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+  - name: Check space
+    command: free -m
+    register: freespace
+    check_mode: false
+    changed_when: false
+  - set_fact:
+      available_space_num: "{{ freespace.stdout_lines[1].split()[6] | int }}"
+      swap_used: "{{ freespace.stdout_lines[2].split()[2] | int }}"
+  - name: Disable swap
+    command: swapoff -a 
+    register: swapoff
+    changed_when: false
+    when: available_space_num > swap_used
+  - ansible.builtin.assert:
+      that:
+        - swapoff.rc == 0
+      fail_msg: "The swapoff command did not execute successfully."
+      success_msg: "The swapoff command executed successfully."
+  - name: Enable Swap
+    command: swapon -a 
+    register: swapon
+    changed_when: false
+    when: swapoff.rc == 0
+  - debug:
+      msg: Clearing Swap Memory finished successfully.
+    when: swapon.rc == 0
