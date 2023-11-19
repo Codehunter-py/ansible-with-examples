@@ -1,0 +1,9 @@
+---
+- name: Creating a Cron Job
+  hosts: ansible1
+  tasks:
+  - name: Ensure that file is touched
+    cron:
+      name: touch file
+      minute: "*/2"
+      job: "touch /tmp/marcha file"

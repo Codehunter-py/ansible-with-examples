@@ -1,0 +1,39 @@
+---
+- name: Creating a partition
+  hosts: all
+  tasks:
+  - assert:
+      that:
+        - ansible_facts['devices']['sdb'] is defined
+      fail_msg: Second HDD is not available.
+      success_msg: Second HDD is found.
+  - name: Ensure that a partition is created 
+    parted:
+      device: /dev/sdb
+      number: 1
+      flags: [ lvm ]
+      state: present
+      part_end: "100%"
+      state: present
+  - name: Create a volume group on top of /dev/sda1
+    community.general.lvg:
+      vg: vgdata
+      pvs: /dev/sdb1
+  - name: Create a logical volume
+    block:
+    - name: create a lv with 30g
+      community.general.lvol:
+        vg: vgdata
+        lv: lvdata
+        size: 1g
+    rescue:
+    - name: create a lv with 1g
+      community.general.lvol:
+        vg: vgdata
+        lv: lvdata
+        size: 1g
+  - name: format the LV with XFS
+    filesystem:
+      fstype: xfs
+      dev: /dev/vgdata/lvdata
+
