@@ -1,0 +1,49 @@
+---
+- name: Setup repository in control host
+  hosts: localhost
+  tasks:
+  - name: install vsftpd, createrepo_c packages
+    dnf:
+      name:
+        - vsftpd
+        - createrepo_c
+      state: present
+  - name: allow annonymus user access
+    lineinfile:
+      path: /etc/vsftpd/vsftpd.conf
+      regexp: '^anonymous_enable=NO'
+      line: anonymous_enable=YES
+       # anonymous_enable=NO
+  - name: start service vsftpd
+    service:
+      name: vsftpd
+      state: started
+      enabled: yes
+  - name: stop firewalld
+    service:
+      name: firewalld
+      state: stopped
+      enabled: no
+    ignore_errors: yes
+  - name: create /var/ftp/repo folder
+    file:
+      path: /var/ftp/repo
+      state: directory
+  - name: "Ensure that RHEL 8 installation ISO is loop-mounted on the directory /var/ftp/repo"
+    ansible.posix.mount:
+      path: /var/ftp/repo
+      src: /dev/sr0
+      fstype: iso9660
+      opts: ro,loop,context="system_u:object_r:public_content_t:s0"
+      state: present
+  - name: touch create repo
+    shell: 
+      cmd: createrepo_c /var/ftp/repo
+    notify: restart_ftp
+
+
+  handlers:
+  - name: restart_ftp
+    service:
+      name: vsftpd
+      state: restarted
