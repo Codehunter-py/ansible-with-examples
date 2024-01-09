@@ -1,0 +1,19 @@
+---
+- name: Example with single pool
+  hosts: all
+  ignore_errors: yes
+  vars:
+    timesync_ntp_servers:
+      - hostname: control.example.local
+        pool: true
+        iburst: true
+  roles:
+    - rhel-system-roles.timesync
+  post_tasks:
+    - name: Register timedatectl output
+      shell: timedatectl | grep -E '^System'
+      register: timedatectl_result
+    - name: Ensure that time is sync
+      fail:
+        msg: time could not be synchronized.
+      when: "'no' in timedatectl_result.stdout"

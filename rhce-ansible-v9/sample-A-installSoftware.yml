@@ -1,0 +1,22 @@
+---
+- name: Install required packages
+  hosts: ansible2 #servers
+  tasks:
+  - name: Install nmap and wireshark
+    ansible.builtin.dnf:
+      name:
+        - nmap
+        - wireshark
+  - name: Install the 'Virtualization Host' package group
+    ansible.builtin.dnf:
+      name: '@Virtualization Host'
+      state: present
+
+- name: Update prod servers
+  hosts: ansible2 #prod
+  tasks:
+  - name: Update all package
+    ansible.builtin.dnf:
+      name: '*'
+      state: latest
+

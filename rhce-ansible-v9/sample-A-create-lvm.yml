@@ -1,0 +1,25 @@
+---
+- name: Configure an LVM
+  hosts: all
+  tasks:
+  - name: Ensure that a second disk is available
+    assert:
+      that:
+        - ansible_facts['devices']['sdb'] is defined
+      fail_msg: "no second disk available"
+  - name: Create a new primary partition for LVM
+    community.general.parted:
+      device: /dev/sdb
+      number: 1
+      flags: [ lvm ]
+      state: present
+      part_end: 1GiB
+  - name: Create a volume group on top of /dev/sda1 with physical extent size = 32MB
+    community.general.lvg:
+      vg: vgdata
+      pvs: /dev/sdb1
+  - name: Create a logical volume the size of all remaining space in the volume group
+    community.general.lvol:
+      vg: vgdata
+      lv: lvdata
+      size: 100%FREE

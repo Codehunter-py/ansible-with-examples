@@ -1,0 +1,33 @@
+---
+- name: Create a report
+  hosts: all
+  tasks:
+    - shell: lsblk -o NAME | grep -E '^sd[b-z]'
+      register: available_disks
+      ignore_errors: true
+    - copy:
+        src: report.txt
+        dest: /root/report.txt
+    - lineinfile:
+        path: /root/report.txt
+        regexp: ^NAME
+        line: NAME={{ ansible_fqdn }}
+    - lineinfile:
+        path: /root/report.txt
+        regexp: ^IPADDRESS
+        line: NAME={{ ansible_default_ipv4.address }}
+    - lineinfile:
+        path: /root/report.txt
+        regexp: ^DISKS
+        line: DISKS={{ ansible_devices.keys() | list }}
+    - lineinfile:
+        path: /root/report.txt
+        regexp: ^SECOND_DISK_NAME
+        line: SECOND_DISK_NAME={{ available_disks.stdout_lines[0] }}
+      when: ansible_devices.sdb is defined
+    - lineinfile:
+        path: /root/report.txt
+        regexp: ^SECOND_DISK_NAME
+        line: SECOND_DISK_NAME=NONE
+      when: ansible_devices.sdb is not defined
+
