@@ -1,0 +1,41 @@
+---
+- name: Configure a web server
+  hosts: dev
+  tasks:
+  - name: Ensure that package is installed
+    yum:
+      name: httpd
+      state: present
+  - name: Create a file /webcontent/index.html
+    file: 
+      path: /webcontent
+      state: directory
+  - name: permit traffic in default zone for https service
+    ansible.posix.firewalld:
+      service: http
+      permanent: true
+      immediate: true
+      state: enabled
+  - name: Ensure that welcome message is present
+    copy:
+      content: "welcome to this webserver. The server is managed by {{ USERNAME }}"
+      dest: /webcontent/index.html
+  - name: Create a symbolic link
+    ansible.builtin.file:
+      dest: /var/www/html/index.html
+      src: /webcontent/index.html
+      state: link
+    notify: Restart apache
+  - name: Allow apache to modify files 
+    community.general.sefcontext:
+      target: '/webcontent(/.*)?'
+      setype: httpd_sys_content_t
+      state: present
+  - name: Apply new SELinux file context to filesystem
+    ansible.builtin.command: restorecon -irv /webcontent
+
+  handlers:
+    - name: Restart apache
+      ansible.builtin.service:
+        name: httpd
+        state: restarted
