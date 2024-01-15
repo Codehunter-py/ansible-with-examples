@@ -1,0 +1,32 @@
+---
+- name: Ensure that vsftpd server is installed
+  hosts: localhost
+  tasks:
+  - name: installed vsftpd
+    dnf:
+      name: vsftpd
+      state: present
+  - service:
+      name: vsftpd
+      state: started
+      enabled: yes
+  - service:
+      name: firewalld
+      state: started
+      enabled: yes
+  - ansible.posix.firewalld:
+      service: ftp
+      permanent: true
+      state: enabled
+      immediate: yes
+  - lineinfile:
+      path: /var/ftp/pub/README.txt
+      line: "welcome to the vsftpd service"
+      create: yes
+    notify: restart ftp
+  handlers:
+    - name: restart ftp
+      service:
+        name: vsftpd
+        state: restarted
+

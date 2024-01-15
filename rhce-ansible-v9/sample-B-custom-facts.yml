@@ -1,0 +1,29 @@
+---
+- name: Ensure that facts are pushed to ansible2
+  hosts: ansible2
+  tasks:
+  - name: create facts.d directory
+    file:
+      state: directory
+      path: /etc/ansible/facts.d
+      recurse: yes
+  - name: copy the custom facts
+    copy:
+      src: sample-B-custom.fact
+      dest: /etc/ansible/facts.d
+
+- name: Ensure that packages are installed
+  hosts: ansible2
+  tasks:
+  - name: install the packages
+    dnf:
+      name: 
+      - "{{ ansible_facts['ansible_local']['sample-B-custom']['packages']['package1'] }}"
+      - "{{ ansible_facts['ansible_local']['sample-B-custom']['packages']['package2'] }}"
+      state: present
+  - name: enable the package2
+    service:
+      name: "{{ ansible_facts['ansible_local']['sample-B-custom']['service']['service'] }}"
+      state: started
+      enabled: yes
+

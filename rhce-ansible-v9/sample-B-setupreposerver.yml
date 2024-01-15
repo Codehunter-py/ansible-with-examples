@@ -1,0 +1,48 @@
+---
+- name: Set up control host as a repo host
+  hosts: localhost
+  tasks:
+  - name: Ensure that packages are installed
+    dnf:
+      name:
+      - vsftpd
+      - createrepo_c
+      state: present
+  - name: Ensure that firewalld disabled
+    service:
+      name: firewalld
+      state: stopped
+      enabled: no
+  - name: Ensure that vsftpd is started and enabled
+    service:
+      name: vsftpd
+      state: started
+      enabled: yes
+
+
+- name: Setup repo directory
+  hosts: localhost
+  tasks:
+  - name: make directory
+    file:
+      path: /var/ftp/repo
+      state: directory
+  - name: allow anonymous access to ftp
+    lineinfile:
+      path: /etc/vsftpd/vsftpd.conf
+      regexp: '^anonymous_enable=NO'
+      line: anonymous_enable=YES
+    notify: restart ftp
+  - name: Download packages
+    dnf:
+      name: nmap
+      download_only: yes
+      download_dir: /var/ftp/repo
+  - name: createrepo_c
+    command: createrepo_c /var/ftp/repo
+    notify: restart ftp
+  handlers:
+  - name: restart ftp
+    service:
+      name: vsftpd
+      state: restarted
