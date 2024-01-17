@@ -1,0 +1,17 @@
+---
+- name: Ensure that user and user groups are present
+  hosts: dev,prod
+  vars_files: sample-B-vault.yml
+  tasks:
+  - name: Ensure that a user is present
+    ansible.builtin.user:
+      name: "{{ username }}"
+      state: present
+  - name: Ensure that a group is present
+    ansible.builtin.group:
+      name: "{{ groupname }}"
+  - name: Ensure that user has a password
+    shell:
+      cmd: echo "{{ password }}" | passwd --stdin "{{ username }}"
+    changed_when: false
+
