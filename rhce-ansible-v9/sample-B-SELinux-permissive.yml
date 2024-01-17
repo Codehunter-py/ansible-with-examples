@@ -1,0 +1,23 @@
+---
+- name: Change SELinux mode to permissive
+  hosts: ansible3
+  tasks:
+  - name: Run getenforce
+    command: getenforce
+    register: result
+    changed_when: false
+  - name: Change SELinux mode to permissive when condition met
+    lineinfile:
+      path: /etc/selinux/config
+      regexp: "^SELINUX"
+      line: "SELinux=permissive"
+    when: '"Enforcing" in result.stdout'
+    notify: reboot_system
+  - debug:
+      msg: "no change was made"
+    when: '"Permissive" in result.stdout'
+  handlers:
+    - name: reboot_system
+      reboot:
+        reboot_timeout: 36000
+

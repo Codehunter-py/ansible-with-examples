@@ -1,0 +1,13 @@
+---
+- name: Create a user account 
+  hosts: ansible2
+  tasks:
+  - name: Ensure that Anna is present
+    user:
+      name: anna
+      state: present
+      password: "$6$PUwO6p3JW/3WVlnk$rJnQihIHRWV/XU.TwCUof7W/dcXRP/ob.XcviP.UueP/Rc74ISuXfZgFt5lvXhwrys.zIdZ/cqEcBpk7smjdD."
+  - name: Ensure that Anna has sudo rights
+    copy:
+      content: "anna  ALL=(ALL) NOPASSWD:ALL"
+      dest: /etc/sudoers.d/anna
