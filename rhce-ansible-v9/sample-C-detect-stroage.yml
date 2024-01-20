@@ -1,0 +1,28 @@
+---
+- name: Ensure that a report is written
+  hosts: all
+  tasks:
+  - set_fact:
+      primary_device: sda
+    when: ansible_facts['devices']['sda'] is defined
+  - set_fact: 
+      primary_device: vda
+    when: ansible_facts['devices']['vda'] is defined
+  - shell: lsblk -o NAME | grep -E '^sd[b-z]'
+    register: available_disks
+    ignore_errors: true
+  - name: Ensure that primary disk and hostname are resolved
+    ansible.builtin.lineinfile:
+      path: /tmp/devices.txt
+      create: yes
+      line: primary device {{ primary_device }} found on {{ ansible_hostname }}
+  - name: Write if a second disk is found
+    ansible.builtin.lineinfile:
+      path: /tmp/devices.txt
+      line: second device {{ available_disks.stdout_lines[0] }} found on {{ ansible_hostname }}
+    when: available_disks.stdout_lines[0] is defined
+  - name: Write if no second disk is found
+    ansible.builtin.lineinfile:
+      path: /tmp/devices.txt
+      line: no second device found on {{ ansible_hostname }}
+    when: available_disks.stdout_lines[0] is not defined
