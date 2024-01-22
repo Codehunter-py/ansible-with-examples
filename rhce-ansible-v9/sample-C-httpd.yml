@@ -1,0 +1,60 @@
+---
+- name: Ensure that Httpd is up and running
+  hosts: all
+  tasks:
+  - name: install httpd
+    dnf:
+      name: httpd
+      state: present
+  - name: enable and start httpd
+    ansible.builtin.service:
+      name: httpd
+      state: started
+      enabled: yes
+  - name: enable firewall on port 88
+    ansible.posix.firewalld:
+      port: 88/tcp
+      permanent: true
+      state: enabled
+      immediate: true
+  - name: ensure that httpd service is listening on port 88
+    ansible.builtin.lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^Listen'
+      line: 'Listen 88'
+    notify: 
+      - reload_httpd
+      - restart_httpd
+  - name: Enable
+    community.general.seport:
+      ports: 88
+      proto: tcp
+      setype: http_port_t
+      state: present
+  - name: Check that a page returns successfully 
+    ansible.builtin.uri:
+      url: "http://{{ ansible_fqdn }}:88"
+      return_content: yes
+      validate_certs: false
+      status_code:
+        - 403
+        - 200
+    register: this
+    ignore_errors: true
+  - name: fail if if failed 
+    ansible.builtin.assert:
+      that:
+        -  not this.failed
+      success_msg: Test passed
+      fail_msg: service could not be accessed
+  
+  handlers:
+    - name: restart_httpd
+      ansible.builtin.service:
+        name: httpd
+        state: restarted
+    - name: reload_httpd
+      ansible.builtin.service:
+        name: httpd
+        state: reloaded
+

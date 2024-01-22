@@ -1,2 +1,15 @@
 ---
-- src: geerlingguy.docker
+roles:
+  - src: geerlingguy.docker
+  - src: geerlingguy.nginx
+
+
+collections:
+    # sync one version of a collection
+  - name: community.general
+
+    # sync one version of a collection
+  - name: ansible.posix
+
+
+
