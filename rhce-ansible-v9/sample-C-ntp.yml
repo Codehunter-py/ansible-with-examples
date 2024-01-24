@@ -1,0 +1,10 @@
+---
+- name: Example with single pool
+  hosts: all
+  vars:
+    timesync_ntp_servers:
+      - hostname: pool.ntp.org
+        pool: true
+        iburst: true
+  roles:
+    - rhel-system-roles.timesync
