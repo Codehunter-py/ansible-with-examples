@@ -1,6 +1,9 @@
 ---
 - name: prepare localhost
   hosts: localhost
+  become: true
+  become_method: sudo
+  become_user: root
   tasks:
   - name: create the local user, including ssh key
     user:
@@ -17,7 +20,10 @@
     command: ls -l {{ username }}/
 
 - name: setup the remote host
-  hosts: ansible2
+  become: true
+  become_method: sudo
+  become_user: root
+  hosts: ansible1
   tasks:
   - name: create remote user, no need for SSH key
     user:

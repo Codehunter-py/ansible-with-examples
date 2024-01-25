@@ -1,0 +1,10 @@
+---
+- name: debug stuff
+  hosts: all
+  tasks:
+    - shell: /usr/bin/foo
+      register: result
+      ignore_errors: True
+    - debug:
+        msg: "it failed"
+      when: result is failed
