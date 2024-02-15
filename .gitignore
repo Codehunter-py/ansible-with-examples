@@ -10,3 +10,4 @@
 **/*.log
 **/collections
 **/Vagrantfile
+**/mycollections

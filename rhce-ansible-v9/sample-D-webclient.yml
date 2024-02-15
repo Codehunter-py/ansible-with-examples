@@ -1,0 +1,16 @@
+---
+- name: Ensure that curl is installed
+  hosts: webclients
+  tasks:
+  - name: Install the package
+    ansible.builtin.yum:
+      name: 
+        - "{{ web_client }}"
+        - "{{ web_server }}"
+      state: present
+  - name: Open firewalld ports
+    ansible.posix.firewalld:
+      service: http
+      permanent: true
+      state: enabled
+      immediate: true
