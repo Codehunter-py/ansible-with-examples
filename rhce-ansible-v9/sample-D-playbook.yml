@@ -1,0 +1,11 @@
+---
+- name: Ensure that curl is installed
+  hosts: webclients
+  roles:
+    - { role: http, tags: webclients }
+
+- name: Ensure that webserver is configured
+  hosts: webservers
+  roles:
+    - { role: http, tags: webservers }
+    - { role: http, tags: webstoreage }

@@ -1,0 +1,14 @@
+---
+# tasks file for http
+#
+- name: set up web server
+  import_tasks: sample-D-webserver.yml
+  tags: webserver
+
+- name: set up web client
+  import_tasks: sample-D-webclient.yml
+  tags: webclient
+
+- name: set up storage
+  import_tasks: sample-D-webstoreage.yml
+  tags: webstoreage

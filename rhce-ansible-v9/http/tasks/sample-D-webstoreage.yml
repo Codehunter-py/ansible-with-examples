@@ -1,0 +1,38 @@
+---
+- name: Ensure that second disk is available
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['devices']['sdb'] is defined
+    fail_msg: "no second disk is available"
+- name: Ensure that disk is formated
+  community.general.parted:
+    device: /dev/sdb
+    number: 1
+    fs_type: xfs
+    state: present
+    part_end: "100%"
+- name: Ensure that mount folder is present
+  ansible.builtin.file:
+    path: "{{ web_dir }}"
+    state: directory
+- name: Format the volume with xfs
+  community.general.filesystem:
+    fstype: xfs
+    dev: /dev/sdb1
+- name: Mount to webdir
+  mount:
+    fstype: xfs
+    src: /dev/sdb1
+    path: "{{ web_dir }}"
+    state: mounted
+- name: Ensure that custom index.html is copied
+  template:
+    src: index.html.j2
+    dest: "{{ web_file }}"
+- name: Allow apache to modify files in /srv/git_repos
+  community.general.sefcontext:
+    target: "{{ web_dir}}(/.*)?"
+    setype: httpd_sys_rw_content_t
+    state: present
+- name: Apply new SELinux file context to filesystem
+  ansible.builtin.command: restorecon -irv "{{ web_dir}}(/.*)?"
