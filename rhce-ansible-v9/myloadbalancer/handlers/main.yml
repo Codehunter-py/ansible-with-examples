@@ -1,0 +1,9 @@
+---
+# handlers file for myloadbalancer
+
+- name: restart haproxy
+  ansible.builtin.service:
+    name: haproxy
+    state: started
+    enabled: yes
+

@@ -1,0 +1,35 @@
+---
+- name: generate report file
+  hosts: all
+  tasks:
+  - name: ensure that file is copied
+    ansible.builtin.copy:
+      src: report.txt
+      dest: /tmp/report.txt
+  - shell:
+      cmd: lsblk -o NAME | grep -E "^sd[b-z]"
+    register: second_disk
+    ignore_errors: true
+  - ansible.builtin.lineinfile:
+      path: /tmp/report.txt
+      regexp: '^NAME'
+      line: "NAME={{ ansible_hostname }}"
+  - ansible.builtin.lineinfile:
+      path: /tmp/report.txt
+      regexp: '^IPADDRESS'
+      line: "IPADDRESS={{ ansible_facts.default_ipv4.address }}"
+  - ansible.builtin.lineinfile:
+      path: /tmp/report.txt
+      regexp: '^DISKS'
+      line: "DISKS={{ ansible_devices.keys() | list }}"
+  - ansible.builtin.lineinfile:
+      path: /tmp/report.txt
+      regexp: '^SECOND_DISK_NAME='
+      line: "SECOND_DISK_NAME={{ second_disk.stdout_lines[0] }}"
+    when: ansible_devices.sdb is defined
+  - ansible.builtin.lineinfile:
+      path: /tmp/report.txt
+      regexp: '^SECOND_DISK_NAME='
+      line: "SECOND_DISK_NAME=NONE"
+    when: ansible_devices.sdb is not defined
+

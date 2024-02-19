@@ -1,0 +1,38 @@
+---
+# tasks file for myloadbalancer
+
+- name: Installing HAP
+  ansible.builtin.dnf:
+    name: haproxy
+    state: present
+
+- name: Configuring HAP
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: restart haproxy
+
+- name: starting haproxy service
+  ansible.builtin.service:
+    name: haproxy
+    state: started
+    enabled: yes
+
+- name: Ensure that firewalld is running
+  ansible.builtin.dnf:
+    name: firewalld
+    state: present
+
+- name: starting firewalld service
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: permit traffic in default zone on port 8081/tcp
+  ansible.posix.firewalld:
+    port: 8081/tcp
+    permanent: true
+    state: enabled
+    immediate: true
+

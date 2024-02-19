@@ -1,0 +1,9 @@
+- name: Install and Configure HAP
+  hosts: all
+  roles:
+    - myloadbalancer
+
+- name: Ensure that Webserver installed and running
+  hosts: webservers
+  roles:
+    - myapache

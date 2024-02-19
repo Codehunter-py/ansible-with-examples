@@ -1,0 +1,34 @@
+---
+# tasks file for myapache
+
+- name: Installing httpd
+  ansible.builtin.dnf:
+    name: httpd
+    state: present
+
+- name: creating web page
+  ansible.builtin.copy:
+    content: "This is {{ ansible_hostname }}"
+    dest: /var/www/html/index.html
+
+- name: Starting httpd services
+  ansible.builtin.service:
+    name: httpd
+    state: started
+- name: Ensure that firewalld is running
+  ansible.builtin.dnf:
+    name: firewalld
+    state: present
+      
+- name: starting firewalld service
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: permit traffic in default zone for http service
+  ansible.posix.firewalld:
+    service: http
+    permanent: true
+    state: enabled
+    immediate: true
