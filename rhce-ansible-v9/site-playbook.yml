@@ -1,5 +1,5 @@
 - name: Install and Configure HAP
-  hosts: all
+  hosts: localhost
   roles:
     - myloadbalancer
 

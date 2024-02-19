@@ -6,18 +6,6 @@
     name: haproxy
     state: present
 
-- name: Configuring HAP
-  ansible.builtin.template:
-    src: haproxy.cfg.j2
-    dest: /etc/haproxy/haproxy.cfg
-  notify: restart haproxy
-
-- name: starting haproxy service
-  ansible.builtin.service:
-    name: haproxy
-    state: started
-    enabled: yes
-
 - name: Ensure that firewalld is running
   ansible.builtin.dnf:
     name: firewalld
@@ -35,4 +23,16 @@
     permanent: true
     state: enabled
     immediate: true
+
+- name: Configuring HAP
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  notify: restart haproxy
+
+- name: starting haproxy service
+  ansible.builtin.service:
+    name: haproxy
+    state: started
+    enabled: yes
 

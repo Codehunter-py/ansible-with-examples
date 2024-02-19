@@ -94,5 +94,5 @@ backend static
 backend {{ ansible_hostname }}
     balance     roundrobin
 {% for host in groups['webservers'] %}
-    server {{ host }} {{ hosts }}:80  check
+    server {{ host }}{{ host }} {{ host }}:80  check
 {% endfor %}
