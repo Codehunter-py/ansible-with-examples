@@ -1,6 +1,6 @@
 ---
 - name: Ensure that lvm is configured
-  hosts: all
+  hosts: ansible3
   ignore_errors: yes
   tasks:
   - name: check if second disk exists
@@ -8,7 +8,7 @@
       that:
         - ansible_facts['devices']['sdb'] is defined
       fail_msg: "no work to do"
-  - name: Ensure that disk are formatted
+  - name: Ensur:qe that disk are formatted
     parted:
       device: /dev/sdb
       number: 1
@@ -38,6 +38,39 @@
     ansible.posix.mount:
       path: /lvfiles
       src: /dev/vgfiles/lvfiles
+      fstype: xfs
+      state: mounted
+
+  - name: Ensure that second part is created
+    parted:
+      device: /dev/sdb
+      number: 2
+      state: present
+      part_end: "100%"
+      flags: [ lvm ]
+  - name: Ensure that volume group is created
+    community.general.lvg:
+      vg: vgfiles
+      pvs: /dev/sdb2
+  - name: Create a logical volume of 512m
+    community.general.lvol:
+      vg: vgfiles
+      lv: lvfiles_copy
+      size: 1g
+  - name: create a directory
+    file:
+      path: /lvfiles_copy
+      state: directory
+  - name: gather facts
+    ansible.builtin.gather_facts:
+  - name: Create a ext4 filesystem on /dev/sdb2
+    community.general.filesystem:
+      fstype: xfs
+      dev: /dev/vgfiles/lvfiles_copy
+  - name: Mount up the logical volume
+    ansible.posix.mount:
+      path: /lvfiles
+      src: /dev/vgfiles/lvfiles_copy
       fstype: xfs
       state: mounted
 

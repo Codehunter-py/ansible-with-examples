@@ -1,0 +1,25 @@
+---
+- name: Manage storage
+  hosts: ansible1
+  roles:
+    - name: rhel-system-roles.storage
+      storage_safe_mode: false
+      storage_pools:
+        - name: vgfiles
+          disks:
+            - sdb
+          volumes:
+          - name: lvfiles
+            size: "1g"
+            mount_point: "/lvfiles"
+            fs_type: xfs
+            state: present
+          - name: lvfiles_copy
+            size: "1g"
+            mount_point: "/lvfiles_copy"
+  pre_tasks:
+    - assert:
+        that:
+          - ansible_facts['devices']['sdb'] is defined
+        fail_msg: "no second disk is available"
+ 

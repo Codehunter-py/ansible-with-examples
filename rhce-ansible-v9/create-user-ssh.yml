@@ -1,0 +1,34 @@
+---
+- name: create localhost user
+  hosts: localhost
+  vars:
+    username: linda
+  tasks:
+    - ansible.builtin.user:
+        name: "{{ username }}"
+        generate_ssh_key: true
+        ssh_key_comment: "{{ username }}@{{ ansible_fqdn }}"
+    - name: create a directory to store a file
+      ansible.builtin.file:
+        path: "{{ username }}"
+        state: directory
+    - name: copy the ssh key to temp {{ username }} key
+      ansible.builtin.shell: 'cat /home/{{ username }}/.ssh/id_rsa.pub > {{ username }}/id_rsa.pub'
+      become: true
+      delegate_to: localhost
+    - name: verify that file exists
+      command: ls -l {{ username }}/
+
+- name: setup remote host
+  hosts: ansible1
+  tasks:
+  - name: create remote user, no need for SSH key
+    ansible.builtin.user:
+      name: "{{ username }}"
+      password: $6$mysecretsalt$MIJffjeQyfrKKrGkprGrDL/g2mCJa53koLmYQuuLmY9y37pDvGKPXU1Ov3RbMi.tpQ9cWvxAzUVtBLe7KrZoU.
+  - name: user authorized_key to set password
+    authorized_key:
+      user: "{{ username }}"
+      key:  "{{ lookup('file', './' + username +'/id_rsa.pub') }}"
+        
+      
