@@ -24,6 +24,12 @@
     state: enabled
     immediate: true
 
+- name: Set haproxy_connect_any flag on and keep it persistent across reboots
+  ansible.posix.seboolean:
+    name: haproxy_connect_any
+    state: true
+    persistent: true
+      
 - name: Configuring HAP
   ansible.builtin.template:
     src: haproxy.cfg.j2
